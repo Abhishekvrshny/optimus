@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/Abhishekvrshny/optimus/internal/util"
+	http2 "github.com/Abhishekvrshny/optimus/pkg/http"
 	"github.com/gorilla/mux"
 	"net/http"
 )
@@ -19,7 +19,7 @@ func NewServer(c *Core) *Server {
 
 func (s *Server) CreateTopic(w http.ResponseWriter, r *http.Request) {
 	topic := mux.Vars(r)["topic"]
-	body, err := util.ReadBody(r.Body)
+	body, err := http2.ReadBody(r.Body)
 	if err != nil {
 		w.WriteHeader(http.StatusServiceUnavailable)
 	}
@@ -52,7 +52,7 @@ func (s *Server) Publish(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("topic doesn't exists"))
 	}
 
-	var b bytes.Buffer
-	b.ReadFrom(r.Body)
-	s.core.Publish(topic, b)
+	var body bytes.Buffer
+	body.ReadFrom(r.Body)
+	s.core.Publish(topic, body, r.Header)
 }

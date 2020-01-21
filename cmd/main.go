@@ -15,7 +15,7 @@ func main() {
 	topicCore := topic.NewCore(q)
 	topicServer := topic.NewServer(topicCore)
 
-	subscriberCore := subscriber.NewCore(q)
+	subscriberCore := subscriber.NewCore(q, topicCore)
 	subscriberServer := subscriber.NewServer(topicCore, subscriberCore)
 
 	router := mux.NewRouter()

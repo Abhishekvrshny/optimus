@@ -2,28 +2,39 @@ package topic
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"log"
+	"time"
+
+	"github.com/Abhishekvrshny/optimus/internal/message"
 	"github.com/Abhishekvrshny/optimus/pkg/redis"
+	guuid "github.com/google/uuid"
 )
 
 type Core struct {
-	q *redis.Redis
-	topicSubscriberMap map[string]map[string]string
+	q                  *redis.Redis
+	topicSubscriberMap map[string]map[string]bool
+	topicMap           map[string]Topic
 }
 
 func NewCore(q *redis.Redis) *Core {
-	return &Core{q, make(map[string]map[string]string)}
+	return &Core{q,
+		make(map[string]map[string]bool),
+		make(map[string]Topic),
+	}
 }
 
-func (c *Core) createTopic(req Topic) error{
+func (c *Core) createTopic(req Topic) error {
 	fmt.Println(req)
+
 	if _, ok := c.topicSubscriberMap[req.name]; ok {
 		return fmt.Errorf("topic already exists")
 	}
-	c.topicSubscriberMap[req.name] = make(map[string]string)
+	c.topicSubscriberMap[req.name] = make(map[string]bool)
+	c.topicMap[req.name] = req
 	return nil
 }
-
 
 func (c *Core) getTopic(name string) {
 
@@ -43,6 +54,43 @@ func (c *Core) SubscriberExists(topic string, subs string) bool {
 	return false
 }
 
-func (c *Core) Publish(s string, buffer bytes.Buffer) {
-	c.q.Client.Publish(s, buffer.String())
+func (c *Core) Publish(topic string, body bytes.Buffer, header map[string][]string) error {
+	reqId := guuid.New().String()
+	msg := message.Message{
+		body.String(),
+		header,
+		reqId,
+	}
+
+	b, err := json.Marshal(msg)
+	if err != nil {
+		return err
+	}
+	pubsub := c.q.Subscribe(reqId)
+	channel := pubsub.Channel()
+
+	c.q.Client.Publish(topic, string(b))
+
+	timer := time.NewTimer(time.Duration(c.topicMap[topic].TimeoutInMs) * time.Millisecond)
+	count := 0
+	for {
+		fmt.Printf("count === %d ", len(c.topicSubscriberMap[topic]))
+		if count == len(c.topicSubscriberMap[topic]) {
+			log.Println("Success: Consumed by all subscribers")
+			return nil
+		}
+		select {
+		case <-channel:
+			count += 1
+		case <-timer.C:
+			log.Println("Fallback: Write to Kafka and return")
+			return nil
+		}
+	}
+
+	return nil
+}
+
+func (c *Core) CreateSubscriber(topicName string, subsName string) {
+	c.topicSubscriberMap[topicName][subsName] = true
 }

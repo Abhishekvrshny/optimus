@@ -2,8 +2,9 @@ package subscriber
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/Abhishekvrshny/optimus/internal/topic"
-	"github.com/Abhishekvrshny/optimus/internal/util"
+	http2 "github.com/Abhishekvrshny/optimus/pkg/http"
 	"github.com/gorilla/mux"
 	"net/http"
 )
@@ -28,18 +29,20 @@ func (s *Server) CreateSubscriber(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if !s.topicCore.SubscriberExists(topic, subs) {
-		body, err := util.ReadBody(r.Body)
+		body, err := http2.ReadBody(r.Body)
 		if err != nil {
 			w.WriteHeader(http.StatusServiceUnavailable)
 			return
 		}
 		req := Subscriber{}
 		err = json.Unmarshal(body, &req)
+		fmt.Println(req)
 		if err != nil {
 			w.WriteHeader(http.StatusServiceUnavailable)
 			return
 		}
 		req.topic = topic
+		req.name = subs
 		s.subscriberCore.CreateSubscriber(req)
 	}
 }
