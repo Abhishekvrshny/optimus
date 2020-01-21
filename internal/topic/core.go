@@ -67,6 +67,7 @@ func (c *Core) Publish(topic string, body bytes.Buffer, header map[string][]stri
 	pubsub := c.q.Subscribe(reqId)
 	channel := pubsub.Channel()
 
+	log.Printf("created temp subscription in redis for message id: %s\n", reqId)
 	c.q.Client.Publish(topic, string(b))
 
 	timer := time.NewTimer(time.Duration(c.topicMap[topic].TimeoutInMs) * time.Millisecond)
@@ -79,6 +80,7 @@ func (c *Core) Publish(topic string, body bytes.Buffer, header map[string][]stri
 		select {
 		case <-channel:
 			count += 1
+			fmt.Printf("consumed by total of %d subscribers\n", count)
 		case <-timer.C:
 			log.Println("Fallback: Write to Kafka and return")
 			return nil

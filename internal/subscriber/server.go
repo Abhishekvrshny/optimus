@@ -42,7 +42,7 @@ func (s *Server) CreateSubscriber(w http.ResponseWriter, r *http.Request) {
 		}
 		req.topic = topic
 		req.name = subs
-		log.Printf("received request to create subscriber %s on topic %s",subs,topic)
+		log.Printf("received request to create subscriber %s on topic %s\n",subs,topic)
 
 		s.subscriberCore.CreateSubscriber(req)
 	}

@@ -33,6 +33,6 @@ func main() {
 		WriteTimeout: 15 * time.Second,
 		ReadTimeout:  15 * time.Second,
 	}
-
+	log.Println("OptimuS is up and running !!!")
 	log.Fatal(srv.ListenAndServe())
 }

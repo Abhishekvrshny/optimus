@@ -30,7 +30,7 @@ func (s *Server) CreateTopic(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusServiceUnavailable)
 	}
 	req.name = topic
-	fmt.Println("received request to create topic %s", req.name)
+	fmt.Printf("received request to create topic %s\n", req.name)
 	err = s.core.createTopic(req)
 	if err != nil {
 		w.WriteHeader(http.StatusServiceUnavailable)
@@ -54,6 +54,6 @@ func (s *Server) Publish(w http.ResponseWriter, r *http.Request) {
 
 	var body bytes.Buffer
 	body.ReadFrom(r.Body)
-	log.Printf("request received to pushlish on topic %s", topic)
+	log.Printf("request received to pushlish on topic %s\n", topic)
 	s.core.Publish(topic, body, r.Header)
 }
