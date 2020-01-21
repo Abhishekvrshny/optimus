@@ -26,8 +26,6 @@ func NewCore(q *redis.Redis) *Core {
 }
 
 func (c *Core) createTopic(req Topic) error {
-	fmt.Println(req)
-
 	if _, ok := c.topicSubscriberMap[req.name]; ok {
 		return fmt.Errorf("topic already exists")
 	}
@@ -74,7 +72,6 @@ func (c *Core) Publish(topic string, body bytes.Buffer, header map[string][]stri
 	timer := time.NewTimer(time.Duration(c.topicMap[topic].TimeoutInMs) * time.Millisecond)
 	count := 0
 	for {
-		fmt.Printf("count === %d ", len(c.topicSubscriberMap[topic]))
 		if count == len(c.topicSubscriberMap[topic]) {
 			log.Println("Success: Consumed by all subscribers")
 			return nil

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	http2 "github.com/Abhishekvrshny/optimus/pkg/http"
 	"github.com/gorilla/mux"
+	"log"
 	"net/http"
 )
 
@@ -29,6 +30,7 @@ func (s *Server) CreateTopic(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusServiceUnavailable)
 	}
 	req.name = topic
+	fmt.Println("received request to create topic %s", req.name)
 	err = s.core.createTopic(req)
 	if err != nil {
 		w.WriteHeader(http.StatusServiceUnavailable)
@@ -40,8 +42,6 @@ func (s *Server) CreateTopic(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) GetTopic(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	fmt.Println(vars)
 	w.WriteHeader(http.StatusOK)
 }
 
@@ -54,5 +54,6 @@ func (s *Server) Publish(w http.ResponseWriter, r *http.Request) {
 
 	var body bytes.Buffer
 	body.ReadFrom(r.Body)
+	log.Printf("request received to pushlish on topic %s", topic)
 	s.core.Publish(topic, body, r.Header)
 }
