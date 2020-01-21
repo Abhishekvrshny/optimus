@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/Abhishekvrshny/optimus/internal/subscriber"
 	"github.com/Abhishekvrshny/optimus/internal/topic"
 	"github.com/Abhishekvrshny/optimus/pkg/redis"
 	"github.com/gorilla/mux"
@@ -14,10 +15,16 @@ func main() {
 	topicCore := topic.NewCore(q)
 	topicServer := topic.NewServer(topicCore)
 
+	subscriberCore := subscriber.NewCore(q)
+	subscriberServer := subscriber.NewServer(topicCore, subscriberCore)
+
 	router := mux.NewRouter()
 	router.HandleFunc("/topics/{topic}", topicServer.CreateTopic).Methods("POST")
 	router.HandleFunc("/topics/{topic}", topicServer.GetTopic).Methods("GET")
 	router.HandleFunc("/topics/{topic}/publish", topicServer.Publish).Methods("POST")
+
+	router.HandleFunc("/topics/{topic}/subscriber/{name}", subscriberServer.CreateSubscriber).Methods("POST")
+
 
 
 	srv := &http.Server{

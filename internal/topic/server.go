@@ -1,6 +1,7 @@
 package topic
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"github.com/Abhishekvrshny/optimus/internal/util"
@@ -9,10 +10,10 @@ import (
 )
 
 type Server struct {
-	core *core
+	core *Core
 }
 
-func NewServer(c *core) *Server {
+func NewServer(c *Core) *Server {
 	return &Server{core:c}
 }
 
@@ -22,14 +23,20 @@ func (s *Server) CreateTopic(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		w.WriteHeader(http.StatusServiceUnavailable)
 	}
-	req := CreateTopicRequest{}
+	req := Topic{}
 	err = json.Unmarshal(body, &req)
 	if err != nil {
 		w.WriteHeader(http.StatusServiceUnavailable)
 	}
-	fmt.Println(req)
-	s.core.createTopic(topic)
+	req.name = topic
+	err = s.core.createTopic(req)
+	if err != nil {
+		w.WriteHeader(http.StatusServiceUnavailable)
+		w.Write([]byte(err.Error()))
+		return
+	}
 	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("OK"))
 }
 
 func (s *Server) GetTopic(w http.ResponseWriter, r *http.Request) {
@@ -39,5 +46,13 @@ func (s *Server) GetTopic(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) Publish(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("here")
+	topic := mux.Vars(r)["topic"]
+	if !s.core.TopicExists(topic) {
+		w.WriteHeader(http.StatusNotFound)
+		w.Write([]byte("topic doesn't exists"))
+	}
+
+	var b bytes.Buffer
+	b.ReadFrom(r.Body)
+	s.core.Publish(topic, b)
 }
