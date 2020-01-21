@@ -29,6 +29,12 @@ Able to boot up the MVP in such a short period.
 ## What I learned
 The power of Redis :P
 
+## Slide deck
+https://docs.google.com/presentation/d/1TNeAIpfF48JhOWw29PNqjyEv9iLZg3YiIaVAoTWeYlA/edit?usp=sharing
+
+## Demo video
+https://youtu.be/cOOkdbCiK9k
+
 ## What's next for OptimuS: Optimized Service Bus
 Make it production grade
 
