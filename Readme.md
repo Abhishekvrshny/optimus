@@ -1,3 +1,6 @@
+# OptimuS: Optimised Service Bus.
+This was a submission for Redis `Beyond Cache` Hackathon 2020 at Bengaluru. **Not to be used in production**
+
 ## Inspiration
 In the world of microservices, fast and reliable communication between them is a must for any event-driven or async architecture to be successful. Most of the service bus implementations in the market today rely on one or the other type of persistent queue. 
 The challenges with persistent queues are:
@@ -28,6 +31,9 @@ Able to boot up the MVP in such a short period.
 
 ## What I learned
 The power of Redis :P
+
+## Design
+![High Levl Design](https://user-images.githubusercontent.com/12811812/72902489-8f0f2080-3d51-11ea-8e13-edbd727be5aa.jpg)
 
 ## Slide deck
 https://docs.google.com/presentation/d/1TNeAIpfF48JhOWw29PNqjyEv9iLZg3YiIaVAoTWeYlA/edit?usp=sharing
